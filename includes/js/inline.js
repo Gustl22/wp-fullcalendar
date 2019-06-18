@@ -46,124 +46,129 @@ jQuery(document).ready( function($){
 		// Fetching Google Events from server instead // googleCalendarApiKey: WPFC.google_calendar_api_key,
 		eventSources: eventSources,
 		//eventRender: function(event, element) {
-		eventMouseover: function(event, jsEvent) {
-			var tooltip = '<div class="tooltipevent card" style="padding:5px;;position:absolute;z-index:10001;">' +
-				'<div class="card-header">' + event.title + '</div>' +
-				'<div class="card-block" style="text-align: center">';
-			var timeFormat = 'h:mma';
-			var dateFormat = 'MMMM Do YYYY, h:mma';
-			var dateFormatAllday = 'MMMM Do YYYY';
-			if (event.allDay) {
-				tooltip += event.start.format(dateFormatAllday) + '<br/>';
-			} else {
-				if (event.start) {
-					tooltip += event.start.format(dateFormat);
-					if (event.end) {
-						tooltip += ' - ';
-						var days_apart = Math.abs(event.end.diff(event.start, 'days'));
-						if (days_apart > 0) {
-							tooltip += event.end.format(dateFormat);
-						} else {
-							tooltip += event.end.format(timeFormat);
-						}
-
-					}
-					tooltip += '<br/>';
-				}
-			}
-			if (event.excerpt) {
-				tooltip += '<small class="text-muted">';
-				tooltip += event.excerpt;
-				tooltip += '</small>';
-			}
-			tooltip += '<small class="text-muted" style="color:grey;"><i>...Click event for more details...</i></small></div>';
-			tooltip += '</div>';
-			var $tooltip = $(tooltip).appendTo('body');
-
-			$(this).mouseover(function(e) {
-				$(this).css('z-index', 10000);
-				$tooltip.fadeIn('500');
-				$tooltip.fadeTo('10', 1.9);
-			}).mousemove(function(e) {
-				$tooltip.css('top', e.pageY + 10);
-				$tooltip.css('left', e.pageX + 25);
-			});
-		},
-		eventMouseout: function(calEvent, jsEvent) {
-			$(this).css('z-index', 8);
-			$('.tooltipevent').remove();
-		},
-		eventClick: function (event, jsEvent, view) {
-			if (event.event_source_type === 'wordpress' && WPFC.wpfc_dialog == 1) {
-				return true;
-			} else if (event.event_source_type === 'tribe') {
-				return true;
-			} else {
-				var w = $(window).width();
-				if (w > DIALOG_MAX_SIZE) {
-					w = DIALOG_MAX_SIZE;
-				}
-				var h = $(window).height() * 0.8;
-
+		...(WPFC.wpfc_qtips && { // Only add to array if qtips / tooltips are enabled
+			eventMouseover: function (event, jsEvent) {
+				var tooltip = '<div class="tooltipevent card" style="padding:5px;;position:absolute;z-index:10001;">' +
+					'<div class="card-header">' + event.title + '</div>' +
+					'<div class="card-block" style="text-align: center">';
+				var timeFormat = 'h:mma';
 				var dateFormat = 'MMMM Do YYYY, h:mma';
 				var dateFormatAllday = 'MMMM Do YYYY';
-				var htmlDate;
 				if (event.allDay) {
-					htmlDate = '<strong>Date:</strong> ' + event.start.format(dateFormatAllday) + '<br/>'
+					tooltip += event.start.format(dateFormatAllday) + '<br/>';
 				} else {
-					htmlDate = '<strong>Start:</strong> ' + event.start.format(dateFormat) + '<br/>'
-					+'<strong>End:</strong> ' + event.end.format(dateFormat) + '<br/>';
-				}
-				htmlDate += '<br/>';
-				if (event.location) {
-					htmlDate += '<strong>Location: </strong>' + event.location + '<br/>';
-					if (event.lat && event.long) {
-						// http://maps.google.com/maps?&z=15&mrt=yp&t=k&q=27.9879012+86.9253141
-						htmlDate += '<a href="https://maps.google.com/maps?&z=18&mrt=yp&t=m&q=' + event.lat + '+' + event.long + '' + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa fa-map-marker" aria-hidden="true"></span>&nbsp;&nbsp;Open in map</a>';
-						// https://www.google.com/maps/@42.585444,13.007813,6z
-						// htmlDate += '<a href="https://www.google.com/maps/@' + event.lat + ',' + event.long + ',6z' + '" target="_blank">Open location in Google Maps</a><br/>';
-					} else {
-						htmlDate += '<a href="https://maps.google.com/maps?&z=18&mrt=yp&t=m&q=' + encodeURIComponent(event.location) + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa fa-map-marker" aria-hidden="true"></span>&nbsp;&nbsp;Open in map</a>';
+					if (event.start) {
+						tooltip += event.start.format(dateFormat);
+						if (event.end) {
+							tooltip += ' - ';
+							var days_apart = Math.abs(event.end.diff(event.start, 'days'));
+							if (days_apart > 0) {
+								tooltip += event.end.format(dateFormat);
+							} else {
+								tooltip += event.end.format(timeFormat);
+							}
+
+						}
+						tooltip += '<br/>';
 					}
-					htmlDate += !bootstrapLoaded ? "<br/>" : '';
 				}
-				htmlDate += !bootstrapLoaded ? '<br/>' : '';
-				var htmlEventDescription = event.description ? event.description.replace(/$/mg,'<br/>') : '';
-				var viewEventLabel = "View Event";
-				var sourceTypeIcon = "";
-				if (event.event_source_type === 'google') {
-					viewEventLabel = "View Event on Google Calendar";
-					sourceTypeIcon = 'fa-google';
-				} else if (event.event_source_type === 'facebook') {
-					viewEventLabel = "View Event on Facebook";
-					sourceTypeIcon = 'fa-facebook-official';
+				if (event.excerpt) {
+					tooltip += '<small class="text-muted">';
+					tooltip += event.excerpt;
+					tooltip += '</small>';
 				}
+				tooltip += '<small class="text-muted" style="color:grey;"><i>...Click event for more details...</i></small></div>';
+				tooltip += '</div>';
+				var $tooltip = $(tooltip).appendTo('body');
 
-				var htmlDescription = htmlDate
-					+ '<a href="' + event.url + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa ' + sourceTypeIcon + '" aria-hidden="true"></span>&nbsp;&nbsp;' + viewEventLabel + '</a>';
-				htmlDescription += !bootstrapLoaded ? '<br/><br/>' : '';
-				htmlDescription +=
-					'<a href="/?wpfc-ical=' + event.id  + '&event_source_type=' + event.event_source_type + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa fa-calendar-plus-o" aria-hidden="true"></span>&nbsp;&nbsp;Add to Calendar</a>' //
-					+ '<hr style="margin-top: 20px; margin-right: 0px; margin-bottom: 20px; margin-left: 0px;">'
-					+ htmlEventDescription;
+				$(this).mouseover(function (e) {
+					$(this).css('z-index', 10000);
+					$tooltip.fadeIn('500');
+					$tooltip.fadeTo('10', 1.9);
+				}).mousemove(function (e) {
+					$tooltip.css('top', e.pageY + 10);
+					$tooltip.css('left', e.pageX + 25);
+				});
+			},
+			eventMouseout: function (calEvent, jsEvent) {
+				$(this).css('z-index', 8);
+				$('.tooltipevent').remove();
+			},
+		}),
 
-				if (bootstrapLoaded) { // Use Bootstrap modal
-					$('#wpfc-event-dialog-title').text(event.title);
-					$('#wpfc-event-dialog-body').html(htmlDescription);
-					$('#wpfc-event-dialog').modal();
-				} else { // If Bootstrap not loaded, use jQuery UI dialog
-					$('#wpfc-event-dialog')
-						.html(htmlDescription)
-						.attr('title', event.title)
-						.dialog({
-							height: h,
-							width: w,
-							position: {my: "center", at: "center", of: window}
-						});
+		...(WPFC.wpfc_dialog && { // Only add to array if dialogs are enabled
+			eventClick: function (event, jsEvent, view) {
+				if (event.event_source_type === 'wordpress' && WPFC.wpfc_dialog == 1) {
+					return true;
+				} else if (event.event_source_type === 'tribe') {
+					return true;
+				} else {
+					var w = $(window).width();
+					if (w > DIALOG_MAX_SIZE) {
+						w = DIALOG_MAX_SIZE;
+					}
+					var h = $(window).height() * 0.8;
+
+					var dateFormat = 'MMMM Do YYYY, h:mma';
+					var dateFormatAllday = 'MMMM Do YYYY';
+					var htmlDate;
+					if (event.allDay) {
+						htmlDate = '<strong>Date:</strong> ' + event.start.format(dateFormatAllday) + '<br/>'
+					} else {
+						htmlDate = '<strong>Start:</strong> ' + event.start.format(dateFormat) + '<br/>'
+							+ '<strong>End:</strong> ' + event.end.format(dateFormat) + '<br/>';
+					}
+					htmlDate += '<br/>';
+					if (event.location) {
+						htmlDate += '<strong>Location: </strong>' + event.location + '<br/>';
+						if (event.lat && event.long) {
+							// http://maps.google.com/maps?&z=15&mrt=yp&t=k&q=27.9879012+86.9253141
+							htmlDate += '<a href="https://maps.google.com/maps?&z=18&mrt=yp&t=m&q=' + event.lat + '+' + event.long + '' + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa fa-map-marker" aria-hidden="true"></span>&nbsp;&nbsp;Open in map</a>';
+							// https://www.google.com/maps/@42.585444,13.007813,6z
+							// htmlDate += '<a href="https://www.google.com/maps/@' + event.lat + ',' + event.long + ',6z' + '" target="_blank">Open location in Google Maps</a><br/>';
+						} else {
+							htmlDate += '<a href="https://maps.google.com/maps?&z=18&mrt=yp&t=m&q=' + encodeURIComponent(event.location) + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa fa-map-marker" aria-hidden="true"></span>&nbsp;&nbsp;Open in map</a>';
+						}
+						htmlDate += !bootstrapLoaded ? "<br/>" : '';
+					}
+					htmlDate += !bootstrapLoaded ? '<br/>' : '';
+					var htmlEventDescription = event.description ? event.description.replace(/$/mg, '<br/>') : '';
+					var viewEventLabel = "View Event";
+					var sourceTypeIcon = "";
+					if (event.event_source_type === 'google') {
+						viewEventLabel = "View Event on Google Calendar";
+						sourceTypeIcon = 'fa-google';
+					} else if (event.event_source_type === 'facebook') {
+						viewEventLabel = "View Event on Facebook";
+						sourceTypeIcon = 'fa-facebook-official';
+					}
+
+					var htmlDescription = htmlDate
+						+ '<a href="' + event.url + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa ' + sourceTypeIcon + '" aria-hidden="true"></span>&nbsp;&nbsp;' + viewEventLabel + '</a>';
+					htmlDescription += !bootstrapLoaded ? '<br/><br/>' : '';
+					htmlDescription +=
+						'<a href="/?wpfc-ical=' + event.id + '&event_source_type=' + event.event_source_type + '" target="_blank" class="btn btn-primary active" style="margin: 5px;" role="button" aria-pressed="true"><span class="fa fa-calendar-plus-o" aria-hidden="true"></span>&nbsp;&nbsp;Add to Calendar</a>' //
+						+ '<hr style="margin-top: 20px; margin-right: 0px; margin-bottom: 20px; margin-left: 0px;">'
+						+ htmlEventDescription;
+
+					if (bootstrapLoaded) { // Use Bootstrap modal
+						$('#wpfc-event-dialog-title').text(event.title);
+						$('#wpfc-event-dialog-body').html(htmlDescription);
+						$('#wpfc-event-dialog').modal();
+					} else { // If Bootstrap not loaded, use jQuery UI dialog
+						$('#wpfc-event-dialog')
+							.html(htmlDescription)
+							.attr('title', event.title)
+							.dialog({
+								height: h,
+								width: w,
+								position: {my: "center", at: "center", of: window}
+							});
+					}
 				}
-			}
-			return false;
-		},
+				return false;
+			},
+		}),
 		loading: function(bool) {
 			if (bool) {
 				$(this).parent().find('.wpfc-loading').show();

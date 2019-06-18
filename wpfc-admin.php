@@ -205,7 +205,8 @@ class WPFC_Admin {
 							<?php do_action('wpfc_admin_after_themeroller_options'); ?>
 							<table class='form-table'>
 								<?php
-								wpfc_options_radio_binary ( __( 'Enable dialogs?', 'wp-fullcalendar'), 'wpfc_dialog', '' );
+                                wpfc_options_radio_binary ( __( 'Enable event tooltips?', 'wp-fullcalendar'), 'wpfc_qtips', 'Enable tooltips on hover' );
+								wpfc_options_radio_binary ( __( 'Enable dialogs?', 'wp-fullcalendar'), 'wpfc_dialog', __('Enable dialog on click','wp-fullcalendar') );
 								wpfc_options_radio_binary ( __( 'Enable featured image?', 'wp-fullcalendar'), 'wpfc_dialog_image', __('If your post has a featured image, it will be included as a thumbnail.','wp-fullcalendar') );
 								?>
 								<tr>

@@ -150,6 +150,7 @@ class WP_FullCalendar{
 		$js_vars['header']->center = 'title';
 		$js_vars['header']->right = implode(',', get_option('wpfc_available_views', array('month','basicWeek','basicDay')));
 		$js_vars['header'] = apply_filters('wpfc_calendar_header_vars', $js_vars['header']);
+        $js_vars['wpfc_qtips'] = get_option('wpfc_qtips',true) == true;
 		$js_vars['wpfc_dialog'] = get_option('wpfc_dialog',true) == true;
 		//calendar translations
 		wp_localize_script('wp-fullcalendar', 'WPFC', apply_filters('wpfc_js_vars', $js_vars));
