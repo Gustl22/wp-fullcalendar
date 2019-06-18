@@ -137,6 +137,7 @@ class WP_FullCalendar{
 		$js_vars['ajaxurl'] = admin_url('admin-ajax.php', $schema);
 		$js_vars['firstDay'] =  get_option('start_of_week');
 		$js_vars['wpfc_theme'] = get_option('wpfc_theme_css') ? true:false;
+		$js_vars['wpfc_theme_system'] = get_option('wpfc_theme_system');
 		$js_vars['wpfc_limit'] = get_option('wpfc_limit',3);
 		$js_vars['wpfc_limit_txt'] = get_option('wpfc_limit_txt','more ...');
 		//$js_vars['google_calendar_api_key'] = get_option('wpfc_google_calendar_api_key', '');

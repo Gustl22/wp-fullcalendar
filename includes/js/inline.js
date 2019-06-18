@@ -32,6 +32,7 @@ jQuery(document).ready( function($){
 		month: WPFC.month,
 		year: WPFC.year,
 		theme: WPFC.wpfc_theme,
+		themeSystem: WPFC.wpfc_theme_system,
 		firstDay: WPFC.firstDay,
 		editable: false,
 		views: {

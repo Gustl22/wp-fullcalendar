@@ -201,6 +201,23 @@ class WPFC_Admin {
 										<i><?php _e( 'You can use the jQuery UI CSS framework to style the calendar, and choose from a set of themes below.','wp-fullcalendar'); ?></i>
 									</td>
 								</tr>
+
+                                <?php
+                                $theme_systems = array('standard','bootstrap3','bootstrap4','jquery-ui');
+                                $theme_systems = apply_filters('wpfc_theme_systems', $theme_systems);
+                                ?>
+                                <tr class="form-field">
+                                    <th scope="row" valign="top"><label><?php _e( 'Theme system?', 'wp-fullcalendar'); ?></label></th>
+                                    <td>
+                                        <select name="wpfc_theme_system">
+                                            <?php foreach( $theme_systems as $theme_system ): ?>
+                                                <option value="<?php echo $theme_system; ?>"
+                                                    <?php if(get_option('wpfc_theme_system') == $theme_system) echo 'selected="selected"'; ?>><?php echo esc_html($theme_system); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <i><?php _e( 'Attention, you may have to specify your own css to get working with other theme systems!','wp-fullcalendar'); ?></i>
+                                    </td>
+                                </tr>
 							</table>
 							<?php do_action('wpfc_admin_after_themeroller_options'); ?>
 							<table class='form-table'>
