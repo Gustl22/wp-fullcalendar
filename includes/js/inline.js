@@ -48,8 +48,8 @@ jQuery(document).ready( function($){
 		// Fetching Google Events from server instead // googleCalendarApiKey: WPFC.google_calendar_api_key,
 		eventSources: eventSources,
 		//eventRender: function(event, element) {
-		...(WPFC.wpfc_qtips && { // Only add to array if qtips / tooltips are enabled
-			eventMouseover: function (event, jsEvent) {
+		// Only add to array if qtips / tooltips are enabled
+			eventMouseover: WPFC.wpfc_qtips ? function (event, jsEvent) {
 				var tooltip = '<div class="tooltipevent card" style="padding:5px;;position:absolute;z-index:10001;">' +
 					'<div class="card-header">' + event.title + '</div>' +
 					'<div class="card-block" style="text-align: center">';
@@ -91,15 +91,14 @@ jQuery(document).ready( function($){
 					$tooltip.css('top', e.pageY + 10);
 					$tooltip.css('left', e.pageX + 25);
 				});
-			},
-			eventMouseout: function (calEvent, jsEvent) {
+			} : null,
+			eventMouseout: WPFC.wpfc_qtips ? function (calEvent, jsEvent) {
 				$(this).css('z-index', 8);
 				$('.tooltipevent').remove();
-			},
-		}),
+			} : null,
 
-		...(WPFC.wpfc_dialog && { // Only add to array if dialogs are enabled
-			eventClick: function (event, jsEvent, view) {
+		// Only add to array if dialogs are enabled
+			eventClick: WPFC.wpfc_dialog ? function (event, jsEvent, view) {
 				if (event.event_source_type === 'wordpress' && WPFC.wpfc_dialog == 1) {
 					return true;
 				} else if (event.event_source_type === 'tribe') {
@@ -169,8 +168,7 @@ jQuery(document).ready( function($){
 					}
 				}
 				return false;
-			},
-		}),
+			} :  null,
 		loading: function(bool) {
 			if (bool) {
 				$(this).parent().find('.wpfc-loading').show();
