@@ -89,6 +89,7 @@ class WP_FullCalendar{
 			//Scripts
 			wp_enqueue_script('wpfc-moment', plugins_url('bower_components/moment/min/moment-with-locales.js', __FILE__, $dependencies, WPFC_VERSION));
 			wp_enqueue_script( 'wp-fullcalendar', plugins_url( 'bower_components/fullcalendar/dist/fullcalendar.js', __FILE__ ), $dependencies, WPFC_VERSION ); //jQuery will load as dependency
+			self::loadLocaleJS('fc-locale', 'bower_components/fullcalendar/dist/locale');
 			wp_enqueue_script( 'wpfc-gcal', plugins_url( 'bower_components/fullcalendar/dist/gcal.js', __FILE__ ), $dependencies, WPFC_VERSION ); //jQuery will load as dependency
 			WP_FullCalendar::localize_script();
 			//Styles
@@ -153,6 +154,7 @@ class WP_FullCalendar{
 		$js_vars['header'] = apply_filters('wpfc_calendar_header_vars', $js_vars['header']);
         $js_vars['wpfc_qtips'] = get_option('wpfc_qtips',true) == true;
 		$js_vars['wpfc_dialog'] = get_option('wpfc_dialog',true) == true;
+		$js_vars['locale'] = get_locale();
 		//calendar translations
 		wp_localize_script('wp-fullcalendar', 'WPFC', apply_filters('wpfc_js_vars', $js_vars));
 	}
@@ -563,22 +565,33 @@ class WP_FullCalendar{
 	 * @uses self::$args - which was modified during self::calendar()
 	 */
 	public static function footer_js(){
-		?>
-		<script type='text/javascript'>
-		<?php 
-		  include('includes/js/inline.js');
-		  $locale_code = strtolower(str_replace('_','-', get_locale()));
-		  $file_long = dirname(__FILE__).'/includes/js/lang/'.$locale_code.'.js';
-		  $file_short = dirname(__FILE__).'/includes/js/lang/'.substr ( $locale_code, 0, 2 ).'.js';
-		  if( file_exists($file_short) ){
-			  include_once($file_short);
-		  }elseif( file_exists($file_long) ){
-			  include_once($file_long);
-		  }
-		?>
-		</script>
-		<?php
+        wp_enqueue_script( 'inline', plugins_url('includes/js/inline.js', __FILE__));
+
+        self::loadLocaleJS('wpfc-locale', 'includes/js/lang');
 	}
+
+    /**
+     * @param $name    some unique script name
+     * @param $relPath the path to the js file
+     */
+	public static function loadLocaleJS($name, $relPath){
+        $locale_code = strtolower(str_replace('_','-', get_locale()));
+        $file_long = $relPath . '/' . $locale_code . '.js';
+        $file_short = $relPath .'/'. substr($locale_code, 0, 2) . '.js';
+
+        if (file_exists(dirname(__FILE__) . '/' . $file_short)) {
+            wp_enqueue_script( $name, plugins_url($file_short, __FILE__));
+        } elseif (file_exists(dirname(__FILE__) . '/' . $file_long)) {
+            wp_enqueue_script( $name, plugins_url($file_long, __FILE__));
+        } else {
+            /*
+            echo "Files not found: <br>";
+            echo dirname(__FILE__) . '/' . $file_long . '<br>';
+            echo dirname(__FILE__) . '/' . $file_short . '<br>';
+            die();
+            */
+        }
+    }
 
 	public static function wpfc_filter_query_vars( $vars ) {
 		if ( isset( $_GET[ WPFC_QUERY_VARIABLE ] ) ) {

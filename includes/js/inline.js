@@ -22,6 +22,7 @@ jQuery(document).ready( function($){
 
 	var fullcalendar_args = {
 		timeFormat: WPFC.timeFormat,
+        // lang: WPFC.locale,
 		defaultView: WPFC.defaultView,
 		weekends: WPFC.weekends,
 		header: {
