@@ -35,9 +35,9 @@ define('WPFC_GOOGLE_SCOPES', implode(' ', array(
 ));
 
 
-use Ical\Feed;
 use Ical\Component\Calendar;
 use Ical\Component\Event;
+use Ical\Feed;
 
 class WP_FullCalendar{
 	static $args = array();
@@ -519,6 +519,11 @@ class WP_FullCalendar{
 					$taxonomy = get_taxonomy($taxonomy_name);
 					if( count(get_terms($taxonomy_name, array('hide_empty'=>1))) > 0 && in_array($taxonomy_name, $search_taxonomies) ){
 						$default_value = !empty(self::$args[$taxonomy_name]) ? self::$args[$taxonomy_name]:0;
+                        if ($taxonomy_name == EM_TAXONOMY_CATEGORY && !empty(self::$args['category']))
+                            $default_value = self::$args['category'];
+                        if (!is_numeric($default_value)) {
+                            $default_value = get_term_by('slug', $default_value, $taxonomy_name)->term_id;
+                        }
 						$taxonomy_args = array( 'echo'=>true, 'hide_empty' => 1, 'name' => $taxonomy_name, 'hierarchical' => true, 'class' => 'wpfc-taxonomy '.$taxonomy_name, 'taxonomy' => $taxonomy_name, 'selected'=> $default_value, 'show_option_all' => $taxonomy->labels->all_items);
 						wp_dropdown_categories( apply_filters('wpmfc_calendar_taxonomy_args', $taxonomy_args, $taxonomy ) );
 					}
