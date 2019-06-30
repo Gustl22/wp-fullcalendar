@@ -176,41 +176,65 @@ jQuery(document).ready( function($){
 				$(this).parent().find('.wpfc-loading').hide();
 			}
 		},
-		viewRender: function(view, element) {
-			if( !wpfc_loaded ){
-				var container = $(element).parents('.wpfc-calendar-wrapper');
-				container.find('.fc-toolbar').after(container.next('.wpfc-calendar-search').show());
-				//catchall selectmenu handle
-				$.widget( "custom.wpfc_selectmenu", $.ui.selectmenu, {
-					_renderItem: function( ul, item ) {
-						var li = $( "<li>", { html: item.label.replace(/#([a-zA-Z0-9]{3}[a-zA-Z0-9]{3}?) - /g, '<span class="wpfc-cat-icon" style="background-color:#$1"></span>') } );
-						if ( item.disabled ) {
-							li.addClass( "ui-state-disabled" );
-						}
-						return li.appendTo( ul );
-					}
-				});
-				$('select.wpfc-taxonomy').wpfc_selectmenu({
-					format: function(text){
-						//replace the color hexes with color boxes
-						return text.replace(/#([a-zA-Z0-9]{3}[a-zA-Z0-9]{3}?) - /g, '<span class="wpfc-cat-icon" style="background-color:#$1"></span>');
-					},
-					select: function( event, ui ){
-						var calendar = $('.wpfc-calendar');
-						menu_name = $(this).attr('name');
-						$( '#' + menu_name + '-button .ui-selectmenu-text' ).html( ui.item.label.replace(/#([a-zA-Z0-9]{3}[a-zA-Z0-9]{3}?) - /g, '<span class="wpfc-cat-icon" style="background-color:#$1"></span>') );
-						WPFC.data[menu_name] = ui.item.value;
-						calendar.fullCalendar('removeEventSource', WPFC.ajaxurl);
-						calendar.fullCalendar('addEventSource', {url : WPFC.ajaxurl, allDayDefault:false, ignoreTimezone: true, data : WPFC.data});
-					}
-				})
-			}
-			wpfc_loaded = true;
-		}
+        viewRender: function (view, element) {
+            if (!wpfc_loaded) {
+                var container = $(element).parents('.wpfc-calendar-wrapper');
+                container.find('.fc-toolbar').after(container.next('.wpfc-calendar-search').show());
+                //catchall selectmenu handle
+                $.widget("custom.wpfc_selectmenu", $.ui.selectmenu, {
+                    _renderItem: function (ul, item) {
+                        var li = $("<li>", {html: replaceColorHexWithBox(item.label)});
+                        if (item.disabled) {
+                            li.addClass("ui-state-disabled");
+                        }
+                        return li.appendTo(ul);
+                    },
+                    // _renderButtonItem: function (item) {
+                    //     // Available in jQuery UI 1.12.* only
+                    //     var buttonItem = $("<span>", {
+                    //         "class": "ui-selectmenu-text"
+                    //     });
+                    //     buttonItem.textContent = replaceColorHexWithBox(item.label);
+					//
+                    //     buttonItem.css("background-color", item.value);
+                    //     return buttonItem;
+                    // }
+                });
+                $('select.wpfc-taxonomy').wpfc_selectmenu({
+                    // Move to custom.wpfc_selectmenu, if _renderButtonItem works in jquery-ui 1.12
+                    select: function (event, ui) {
+                        var calendar = $('.wpfc-calendar');
+                        menu_name = $(this).attr('name');
+                        $('#' + menu_name + '-button .ui-selectmenu-text').html(replaceColorHexWithBox(ui.item.label));
+                        WPFC.data[menu_name] = ui.item.value;
+                        calendar.fullCalendar('removeEventSource', WPFC.ajaxurl);
+                        calendar.fullCalendar('addEventSource', {
+                            url: WPFC.ajaxurl,
+                            allDayDefault: false,
+                            ignoreTimezone: true,
+                            data: WPFC.data
+                        });
+                    }
+                })
+            }
+            wpfc_loaded = true;
+        },
+        eventAfterAllRender: function () {
+            // // Workaround for jquery-ui selectmenu below 1.12
+            $(".ui-selectmenu-text").each(function () {
+                this.innerHTML = replaceColorHexWithBox(this.textContent);
+            });
+        }
 	};
 	if( WPFC.wpfc_locale ){
 		$.extend(fullcalendar_args, WPFC.wpfc_locale);
 	}
+
+	// Init fullcalendar
 	$(document).trigger('wpfc_fullcalendar_args', [fullcalendar_args]);
 	$('.wpfc-calendar').first().fullCalendar(fullcalendar_args);
 });
+
+function replaceColorHexWithBox(hex) {
+	return hex.replace(/#([a-zA-Z0-9]{3}[a-zA-Z0-9]{3}?) - /g, '<span class="wpfc-cat-icon" style="background-color:#$1"></span>');
+}
