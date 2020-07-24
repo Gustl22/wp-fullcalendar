@@ -1,4 +1,6 @@
-﻿=== WP FullCalendar ===
+This project is discontinued in favor of [GB FullCalendar](https://github.com/Oberhauser-Dev/gb-fullcalendar).
+
+=== WP FullCalendar ===
 Contributors: netweblogic, mikelynn
 Tags: calendar, calendars, jQuery calendar, ajax calendar, event calendars, events calendar
 Text Domain: wp-fullcalendar
